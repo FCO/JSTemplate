@@ -1,15 +1,18 @@
-//setVersion("Template.js", 0.4);
-
 function Template(code) {
 	this._templates = {};
 	this.setTemplate(code);
 	this.compileTemplate();
+	this.helpers = {};
 }
 
 Template.prototype = {
 	_templates: 		null,
+	addHelper:		function(name, func) {
+		var _this = this;
+		this.helpers[name] = function(){return func.apply(_this, arguments)};
+	},
 	render:			function(data) {
-		return this.__function__.call(data);
+		return this.__function__.call(data, this);
 	},
 	setTemplate:		function(template) {
 		this.code = template;
@@ -35,6 +38,6 @@ Template.prototype = {
 			}
 		}
 		compiled_template += "return ret;\n";
-		this.__function__ =  new Function(compiled_template);
+		this.__function__ =  new Function("context", compiled_template);
 	},
 };

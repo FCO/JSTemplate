@@ -11,4 +11,10 @@ test( "Class Template", function() {
   equal( tmpl4.render({ble: "bli"}), "bla bli", "Template render not empty templates with code blocks with an '='" );
   var tmpl5 = new Template("<% for(var i = 0; i < this.array.length; i++){ %><%= this.array[i] %> <%= this.ble + i %> <% } %>");
   equal( tmpl5.render({ble: "blo", array: ["one", "two"]}), "one blo0 two blo1 ", "Template render not empty templates with code blocks with a complex js code" );
+  var tmpl6 = new Template("<%= context.helpers.test() %>");
+  tmpl6.addHelper("test", function(){ok(true, "Helper running inside the template"); return "my test"});
+  equal( tmpl6.render({}), "my test", "Using the return of the worker" );
+  var tmpl7 = new Template("str: <%= context.helpers.test('test string') %>");
+  tmpl7.addHelper("test", function(str){equal(str, "test string", "Helper running inside the template and receiving parameters"); return str});
+  equal( tmpl7.render({}), "str: test string", "Using the return of the worker" );
 });
