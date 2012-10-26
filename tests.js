@@ -8,7 +8,7 @@ test( "Class Template", function() {
   var tmpl3 = new Template("bla <% this.ble %>");
   equal( tmpl3.render({ble: "bli"}), "bla ", "Template render not empty templates with code blocks" );
   var tmpl4 = new Template("bla <%= this.ble %>");
-  equal( tmpl4.render({ble: "bli"}), "bla bli", "Template render empty templates" );
+  equal( tmpl4.render({ble: "bli"}), "bla bli", "Template render not empty templates with code blocks with an '='" );
   var tmpl5 = new Template("<% for(var i = 0; i < this.array.length; i++){ %><%= this.array[i] %> <%= this.ble + i %> <% } %>");
-  equal( tmpl5.render({ble: "blo", array: ["one", "two"]}), "one blo0 two blo1 ", "Template render empty templates" );
+  equal( tmpl5.render({ble: "blo", array: ["one", "two"]}), "one blo0 two blo1 ", "Template render not empty templates with code blocks with a complex js code" );
 });
