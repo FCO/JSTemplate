@@ -12,7 +12,7 @@ Template.prototype = {
 		this.helpers[name] = function(){return func.apply(_this, arguments)};
 	},
 	render:			function(data) {
-		return this.__function__.call(data, this);
+		return this.__function__.call(this, data);
 	},
 	setTemplate:		function(template) {
 		this.code = template;
@@ -38,6 +38,6 @@ Template.prototype = {
 			}
 		}
 		compiled_template += "return ret;\n";
-		this.__function__ =  new Function("context", compiled_template);
+		this.__function__ =  new Function("data", compiled_template);
 	},
 };
