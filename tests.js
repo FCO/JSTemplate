@@ -30,6 +30,6 @@ test( "Tag types", function() {
 test( "loadTemplate() Helper", function() {
 	if(navigator.vendor != "Google Inc.") {
 		var tmpl1 = new Template("[[<%= this.loadTemplate('./test.tmpl').render({var1: 'value1'}) %>]]");
-		equal( tmpl1.render({}), "[[value1\n]]", "Using the return of the worker" );
+		equal( tmpl1.render({}), "[[value1\n]]", "Using the return of the helper" );
 	} else ok(true, "Skiping, its chrome!");
 });
