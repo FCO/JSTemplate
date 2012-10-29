@@ -56,16 +56,25 @@ Template.prototype = {
 		for(var i = 0; i < template_hashes.length; i++) {
 			if(template_hashes[i].data != null)
 				compiled_template += "ret += '" + template_hashes[i].data + "';\n";
-			if(/^\s*=\s*/.test(template_hashes[i].code)) {
-				compiled_template += "ret += ";
-				template_hashes[i].code = template_hashes[i].code.replace(/^\s*=\s*/, "");
-			}
-			compiled_template += template_hashes[i].code + ";\n";
+			compiled_template += this.__compile_code__(template_hashes[i].code);
 		}
 		compiled_template += "return ret;\n";
 		this.__function__ =  new Function("data", compiled_template);
 	},
-	loadTemplate: function(url){
+	__compile_code__:	function(code) {
+		var ret = code;
+		if(!code)
+			ret = "";
+		if(/^\s*=\s*/.test(code)) {
+			var new_code = code.replace(/^\s*=\s*/, "");
+			ret = "ret += " + this.__compile_code__(new_code) + ";\n";
+		} else if(/\s*=\s*$/.test(code)) {
+			var new_code = code.replace(/\s*=\s*$/, "");
+			ret = "( " + this.__compile_code__(new_code) + " ).replace(/^\\s+|\\s+$/g, '')";
+		}
+		return ret;
+	},
+	loadTemplate:		function(url){
 		return Template.loadTemplate(url);
 	},
 };
