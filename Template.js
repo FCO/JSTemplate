@@ -58,10 +58,9 @@ Template.prototype = {
 				compiled_template += "ret += '" + template_hashes[i].data + "';\n";
 			if(/^\s*=\s*/.test(template_hashes[i].code)) {
 				compiled_template += "ret += ";
-				compiled_template += template_hashes[i].code.replace(/^\s*=\s*/, "") + ";\n";
-			} else {
-				compiled_template += template_hashes[i].code + ";\n";
+				template_hashes[i].code = template_hashes[i].code.replace(/^\s*=\s*/, "");
 			}
+			compiled_template += template_hashes[i].code + ";\n";
 		}
 		compiled_template += "return ret;\n";
 		this.__function__ =  new Function("data", compiled_template);
