@@ -5,19 +5,13 @@ function Template(code) {
 		this.compileTemplate();
 	}
 	this.helpers = {};
+	if(window.bowser != null) {
+		this.browser = bowser;
+		this.is_browser_detect_load = true;
+	}
 }
 
 Template.__loaded__ = {};
-
-Template.browser_discovery	=	function(url) {
-	if(Template.__browser_discovery__ == null) {
-		var script = document.createElement("script");
-		document.body.appendChild(script);
-		script.src = "bowser/bowser.min.js";
-		Template.__browser_discovery__ = browser;
-	}
-	return Template.__browser_discovery__
-};
 
 Template.loadTemplate		=	function(url) {
 	if(Template.__loaded__[url] == null) {
@@ -87,7 +81,15 @@ Template.prototype = {
 	loadTemplate:		function(url){
 		return Template.loadTemplate(url);
 	},
-	browser:		function() {
-		return Template.browser_discovery();
+	is_browser_detect_load: false,
+	browser:	{
+		get msie(){		console.log("bowser lib not loaded."); return false;},
+		get safari(){	console.log("bowser lib not loaded."); return false;},
+		get chrome(){	console.log("bowser lib not loaded."); return false;},
+		get webkit(){	console.log("bowser lib not loaded."); return false;},
+		get firefox(){	console.log("bowser lib not loaded."); return false;},
+		get gecko(){	console.log("bowser lib not loaded."); return false;},
+		get opera(){	console.log("bowser lib not loaded."); return false;},
 	},
 };
+

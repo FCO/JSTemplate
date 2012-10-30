@@ -33,3 +33,21 @@ test( "loadTemplate() Helper", function() {
 		equal( tmpl1.render({}), "[[value1\n]]", "Using the return of the helper" );
 	} else ok(true, "Skiping, its chrome!");
 });
+test( "browser() Helper", function() {
+	var tmpl1 = new Template("<% if(this.browser.msie || this.browser.webkit || this.browser.gecko || this.browser.opera) { %>detected<% } else { %>I dont know who you are<% } %>");
+	if(tmpl1.is_browser_detect_load) {
+		equal( tmpl1.render({}), "detected", "Browser detected the browser" );
+	} else {
+		equal( tmpl1.render({}), "I dont know who you are", "Browser detected the browser" );
+	}
+});
+asyncTest( "browser() Helper - asyncTest", function() {
+	var script = document.createElement("script");
+	script.src = "bowser/bowser.min.js";
+	script.onload = function(){
+		var tmpl1 = new Template("<% if(this.browser.msie || this.browser.webkit || this.browser.gecko || this.browser.opera) { %>detected<% } else { %>I dont know who you are<% } %>");
+		equal( tmpl1.render({}), "detected", "Browser detected the browser" );
+		start();
+	};
+	document.body.appendChild(script);
+});
