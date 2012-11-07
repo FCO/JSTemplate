@@ -7,11 +7,11 @@ test( "Class Template", function() {
 test( "Template", function() {
 	var tmpl1 = new Template("bla");
 	equal( tmpl1.render({}), "bla", "Template render not empty templates" );
-	var tmpl2 = new Template("bla <% data.ble %>");
+	var tmpl2 = new Template("bla <% ble; %>");
 	equal( tmpl2.render({ble: "bli"}), "bla ", "Template render not empty templates with code blocks" );
-	var tmpl3 = new Template("bla <%= data.ble %>");
+	var tmpl3 = new Template("bla <%= ble %>");
 	equal( tmpl3.render({ble: "bli"}), "bla bli", "Template render not empty templates with code blocks with an '='" );
-	var tmpl4 = new Template("<% for(var i = 0; i < data.array.length; i++){ %><%= data.array[i] %> <%= data.ble + i %> <% } %>");
+	var tmpl4 = new Template("<% for(var i = 0; i < array.length; i++){ %><%= array[i] %> <%= ble + i %> <% } %>");
 	equal( tmpl4.render({ble: "blo", array: ["one", "two"]}), "one blo0 two blo1 ", "Template render not empty templates with code blocks with a complex js code" );
 });
 test( "Template Helper Engine", function() {
@@ -24,7 +24,7 @@ test( "Template Helper Engine", function() {
 	throws(function(){tmpl2.addHelper("test", function(str){})}, "Helper or method exists.", "Throws a error if helper exists");
 });
 test( "Tag types", function() {
-	var tmpl1 = new Template("<%= data.var_with_spaces  =%>");
+	var tmpl1 = new Template("<%= var_with_spaces  =%>");
 	equal( tmpl1.render({var_with_spaces: "      lots of spaces    "}), "lots of spaces", "Using the trimable tag" );
 });
 test( "loadTemplate() Helper", function() {
