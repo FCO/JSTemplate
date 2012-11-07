@@ -40,7 +40,11 @@ Template.prototype = {
 		this[name] = function(){return func.apply(_this, arguments)};
 	},
 	render:			function(data) {
-		return this.__function__.call(this, data);
+		var variables = "";
+		for(var key in data) {
+			variables += "var " + key + " = " + JSON.stringify(data[key]) + "\n";
+		}
+		return this.__function__.call(this, variables);
 	},
 	setTemplate:		function(template) {
 		this.code = template;
@@ -56,14 +60,15 @@ Template.prototype = {
 			template_hashes.push({code: code, data: data});
 		}
 		var func;
-		var compiled_template = "var ret = '';\n";
+		var compiled_template = "eval(variables);\n";
+		compiled_template += "var ret = '';\n";
 		for(var i = 0; i < template_hashes.length; i++) {
 			if(template_hashes[i].data != null)
 				compiled_template += "ret += '" + template_hashes[i].data + "';\n";
 			compiled_template += this.__compile_code__(template_hashes[i].code);
 		}
 		compiled_template += "return ret;\n";
-		this.__function__ =  new Function("data", compiled_template);
+		this.__function__ =  new Function("variables", compiled_template);
 	},
 	__compile_code__:	function(code) {
 		var ret = code;
