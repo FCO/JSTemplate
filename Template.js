@@ -13,22 +13,41 @@ function Template(code) {
 
 Template.__loaded__ = {};
 
-Template.loadTemplate		=	function(url) {
+Template.loadTemplate	=	function(url) {
 	if(Template.__loaded__[url] == null) {
-		var data = Template.__download_template__(url);
+		var data = Template.__download__(url);
 		Template.__loaded__[url] = new Template(data);
 	}
 	return Template.__loaded__[url];
 };
-Template.__download_template__	=	function(url) {
+Template.__download__	=	function(url, meth, data) {
+	if(meth == null) meth = "GET";
 	var content = null;
 	var AJAX = new XMLHttpRequest();
 	if (AJAX) {
-		AJAX.open("GET", url, false);                             
-		AJAX.send(null);
+		AJAX.open(meth, url, false);                             
+		AJAX.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		AJAX.send(Template.transform2url(data));
 		content = AJAX.responseText;                                         
 	}
 	return content;
+};
+
+Template.transform2url	=	function(data) {
+	var pairs = [];
+	for(var key in data) {
+		if(data[key].constructor == Array) {
+			for(var i = 0; i < data[key].length; i++) {
+				pairs.push(escape(key) + "[]=" + escape(data[key][i]));
+			}
+		} else {
+			pairs.push(escape(key) + "=" + escape(data[key]));
+		}
+	}
+	if(pairs.length > 0)
+		return pairs.join("&");
+	else
+		return null;
 };
 
 Template.prototype = {
@@ -39,7 +58,20 @@ Template.prototype = {
 			throw "Helper or method exists.";
 		this[name] = function(){return func.apply(_this, arguments)};
 	},
-	render:			function(data) {
+	__translate_data__:	function(url, data) {
+		if(url.constructor != String) 
+			return url;
+		var part;
+		if(part = url.match(/^\s*(?:(GET|POST|PUT|DELETE)\s+)?(.+)$/)) {
+			var meth = part[1] ? part[1] : "GET";
+			url = part[2];
+			var retData = Template.__download__(url, meth, data);
+			return JSON.parse(retData);
+		}
+		return null;
+	},
+	render:			function(data, url_data) {
+		data = this.__translate_data__(data, url_data);
 		var variables = "";
 		for(var key in data) {
 			variables += "var " + key + " = " + JSON.stringify(data[key]) + "\n";
