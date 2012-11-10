@@ -13,6 +13,12 @@ test( "Template", function() {
 	equal( tmpl3.render({ble: "bli"}), "bla bli", "Template render not empty templates with code blocks with an '='" );
 	var tmpl4 = new Template("<% for(var i = 0; i < array.length; i++){ %><%= array[i] %> <%= ble + i %> <% } %>");
 	equal( tmpl4.render({ble: "blo", array: ["one", "two"]}), "one blo0 two blo1 ", "Template render not empty templates with code blocks with a complex js code" );
+	if(navigator.vendor != "Google Inc.") {
+		var tmpl1 = new Template("<%= var1 %> - <%= var2 %>");
+		equal( tmpl1.render("GET test.json"), "value1 - value2", "Using URL as data" );
+		var tmpl2 = new Template("<%= var1 %> - <%= var2 %>");
+		equal( tmpl2.render("test.json"), "value1 - value2", "Using URL as data" );
+	} else ok(true, "Skiping, its chrome!");
 });
 test( "Template Helper Engine", function() {
 	var tmpl1 = new Template("<%= this.test() %>");
