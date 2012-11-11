@@ -19,6 +19,9 @@ test( "Template", function() {
 		var tmpl2 = new Template("<%= var1 %> - <%= var2 %>");
 		equal( tmpl2.render("test.json"), "value1 - value2", "Using URL as data" );
 	} else ok(true, "Skiping, its chrome!");
+	var tmpl5 = Template.loadTemplate("test_script");
+	equal(tmpl5.render({var1: 'value1', var2: 'value2'}), "value1 - value2", "Using 'on html' template");
+	equal(Template.renderTemplate("test_script", {var1: 'value1', var2: 'value2'}), "value1 - value2", "Using 'on html' template with renderTemplate()");
 });
 test( "Template Helper Engine", function() {
 	var tmpl1 = new Template("<%= this.test() %>");

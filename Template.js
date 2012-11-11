@@ -13,9 +13,18 @@ function Template(code) {
 
 Template.__loaded__ = {};
 
+Template.renderTemplate	=	function(templateName, data, data2ajax) {
+	return Template.loadTemplate(templateName).render(data, data2ajax);
+};
+
 Template.loadTemplate	=	function(url) {
 	if(Template.__loaded__[url] == null) {
-		var data = Template.__download__(url);
+		var data;
+		if(element = document.getElementById(url)) {
+			data = element.innerHTML;
+		} else {
+			data = Template.__download__(url);
+		}
 		Template.__loaded__[url] = new Template(data);
 	}
 	return Template.__loaded__[url];
