@@ -25,6 +25,8 @@ test( "Template", function() {
 	Template.stash.var1 = "value1 from stash";
 	Template.stash.var2 = "value2 from stash";
 	equal(Template.renderTemplate("<%= this.stash.var1 %> - <%= this.stash.var2 %>", {}), "value1 from stash - value2 from stash", "Using 'on html' template with renderTemplate()");
+	Template.renderOn("<%= var1 %> - <%= var2 %>", {var1: 'value1', var2: 'value2'}, "render_on");
+	equal(document.getElementById("render_on").innerHTML, "value1 - value2", "Using renderOn().");
 });
 test( "Template Helper Engine", function() {
 	var tmpl1 = new Template("<%= this.test() %>");
