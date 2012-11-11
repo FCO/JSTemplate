@@ -14,10 +14,14 @@ function Template(code) {
 Template.__loaded__ = {};
 Template.stash = {};
 
-Template.renderTemplate	=	function(templateName, data, data2ajax) {
-	return Template.loadTemplate(templateName).render(data, data2ajax);
-};
-
+Template.renderOn	=	function(template, data, elementId) {
+	var data2ajax;
+	if(data.constructor == Array) {
+		data2ajax = data.pop();
+		data = data.pop();
+	}
+	document.getElementById(elementId).innerHTML = Template.renderTemplate(template, data, data2ajax);
+}
 Template.renderTemplate	=	function(templateName, data, data2ajax) {
 	return Template.loadTemplate(templateName).render(data, data2ajax);
 };
