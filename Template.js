@@ -12,10 +12,22 @@ function Template(code) {
 }
 
 Template.__loaded__ = {};
+Template.stash = {};
+
+Template.renderTemplate	=	function(templateName, data, data2ajax) {
+	return Template.loadTemplate(templateName).render(data, data2ajax);
+};
 
 Template.loadTemplate	=	function(url) {
 	if(Template.__loaded__[url] == null) {
-		var data = Template.__download__(url);
+		var data;
+		if(element = document.getElementById(url)) {
+			data = element.innerHTML;
+		} else if(/^((GET|POST|PUT|DELETE)\s+)?[\w+_.-]+$/.test(url)) {
+			data = Template.__download__(url);
+		} else {
+			data = url;
+		}
 		Template.__loaded__[url] = new Template(data);
 	}
 	return Template.__loaded__[url];
@@ -51,6 +63,7 @@ Template.transform2url	=	function(data) {
 };
 
 Template.prototype = {
+	stash:			Template.stash,
 	_templates: 		null,
 	addHelper:		function(name, func) {
 		var _this = this;
