@@ -14,6 +14,17 @@ function Template(code) {
 Template.__loaded__ = {};
 Template.stash = {};
 
+Template.extract_form	=	function(form) {
+	var elements = form.elements;
+	var query = [];
+	for(var i = 0; i < elements.length; i++) {
+		if(!elements[i].name) break;
+		if((elements[i].type == 'radio' || elements[i].type == 'checkbox') && !elements[i].checked) break;
+		query.push(elements[i].name + "=" + elements[i].value);
+	}
+	return query.join("&");
+};
+
 Template.renderOn	=	function(template, data, elementId) {
 	var data2ajax;
 	if(data.constructor == Array) {
@@ -54,20 +65,24 @@ Template.__download__	=	function(url, meth, data) {
 };
 
 Template.transform2url	=	function(data) {
-	var pairs = [];
-	for(var key in data) {
-		if(data[key].constructor == Array) {
-			for(var i = 0; i < data[key].length; i++) {
-				pairs.push(escape(key) + "[]=" + escape(data[key][i]));
+	if(data.constructor == Object) {
+		var pairs = [];
+		for(var key in data) {
+			if(data[key].constructor == Array) {
+				for(var i = 0; i < data[key].length; i++) {
+					pairs.push(escape(key) + "=" + escape(data[key][i]));
+				}
+			} else {
+				pairs.push(escape(key) + "=" + escape(data[key]));
 			}
-		} else {
-			pairs.push(escape(key) + "=" + escape(data[key]));
 		}
+		if(pairs.length > 0)
+			return pairs.join("&");
+		else
+			return null;
+	} else if(data.constructor == HTMLFormElement) {
+		return Template.extract_form(data);
 	}
-	if(pairs.length > 0)
-		return pairs.join("&");
-	else
-		return null;
 };
 
 Template.prototype = {
