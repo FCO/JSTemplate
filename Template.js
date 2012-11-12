@@ -65,7 +65,8 @@ Template.__download__	=	function(url, meth, data) {
 };
 
 Template.transform2url	=	function(data) {
-	if(data.constructor == Object) {
+	if(data == null) {
+	} else if(data.constructor == Object) {
 		var pairs = [];
 		for(var key in data) {
 			if(data[key].constructor == Array) {
