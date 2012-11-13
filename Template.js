@@ -133,14 +133,13 @@ Template.prototype = {
 		compiled_template += "var ret = '';\n";
 		for(var i = 0; i < template_hashes.length; i++) {
 			if(template_hashes[i].data != null)
-				compiled_template += "ret += '" + template_hashes[i].data + "';\n";
+				compiled_template += "ret += '" + template_hashes[i].data.replace(/'/, "\\'") + "';\n";
 			compiled_template += this.__compile_code__(template_hashes[i].code);
 		}
 		compiled_template += "return ret;\n";
 		this.__function__ =  new Function("variables", compiled_template);
 	},
 	__compile_code__:	function(code) {
-		code = code.replace(/'/, "\\'");
 		var ret = code;
 		if(!code)
 			ret = "";
