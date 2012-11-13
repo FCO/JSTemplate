@@ -140,6 +140,7 @@ Template.prototype = {
 		this.__function__ =  new Function("variables", compiled_template);
 	},
 	__compile_code__:	function(code) {
+		code = code.replace(/'/, "\\'");
 		var ret = code;
 		if(!code)
 			ret = "";
