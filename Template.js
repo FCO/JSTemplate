@@ -56,7 +56,7 @@ Template.__download__	=	function(url, meth, data) {
 Template.transform2url	=	function(data) {
 	var pairs = [];
 	for(var key in data) {
-		if(data[key].constructor == Array) {
+		if(data[key] && data[key].constructor == Array) {
 			for(var i = 0; i < data[key].length; i++) {
 				pairs.push(escape(key) + "[]=" + escape(data[key][i]));
 			}
@@ -117,7 +117,7 @@ Template.prototype = {
 		compiled_template += "var ret = '';\n";
 		for(var i = 0; i < template_hashes.length; i++) {
 			if(template_hashes[i].data != null)
-				compiled_template += "ret += '" + template_hashes[i].datai.replace(/'/, "\\'") + "';\n";
+				compiled_template += "ret += '" + template_hashes[i].data.replace(/'/g, "\\'") + "';\n";
 			compiled_template += this.__compile_code__(template_hashes[i].code);
 		}
 		compiled_template += "return ret;\n";
