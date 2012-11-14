@@ -50,7 +50,7 @@ Template.renderOn	=	function(template, data, elementId) {
 		break;
 		case "APPEND":
 			var childs = container.childNodes;
-console.log(childs[i]);
+console.log(childs[0]);
 			for(var i = 0; i < childs.length; i++)
 				elementObj.appendChild(childs[i]);
 		break;
