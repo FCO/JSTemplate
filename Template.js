@@ -49,8 +49,10 @@ Template.renderOn	=	function(template, data, elementId) {
 			elementObj.innerHTML = container.innerHTML;
 		break;
 		case "APPEND":
-			while(container.firstNode != null)
-				elementObj.appendChild(container.removeChild(container.firstNode));
+			while(container.firstNode != null) {
+				elementObj.appendChild(container.firstNode);
+				container.removeChild(container.firstNode);
+			}
 		break;
 		case "PREPEND":
 			while(container.lastNode != null)
