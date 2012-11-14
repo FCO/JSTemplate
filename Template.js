@@ -49,7 +49,7 @@ Template.renderOn	=	function(template, data, elementId) {
 			elementObj.innerHTML = container.innerHTML;
 		break;
 		case "APPEND":
-			elementObj.insertAfter(container);
+			elementObj.insertAfter(container, elementObj.lastChild);
 console.log("Passou");
 		break;
 		case "PREPEND":
