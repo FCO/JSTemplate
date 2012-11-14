@@ -49,11 +49,12 @@ Template.renderOn	=	function(template, data, elementId) {
 			elementObj.innerHTML = container.innerHTML;
 		break;
 		case "APPEND":
-			elementObj.appendChild(container);
-console.log("Passou");
+			while(container.firstNode != null)
+				elementObj.appendChild(container.removeChild(container.firstNode));
 		break;
 		case "PREPEND":
-			elementObj.prependChild(container);
+			while(container.lastNode != null)
+				elementObj.prependChild(container.removeChild(container.lastNode));
 		break;
 	}
 }
