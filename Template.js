@@ -31,7 +31,27 @@ Template.renderOn	=	function(template, data, elementId) {
 		data2ajax = data.pop();
 		data = data.pop();
 	}
-	document.getElementById(elementId).innerHTML = Template.renderTemplate(template, data, data2ajax);
+	var what2do = "REPLACE";
+	var match;
+	if(match = elementId.match(/^(?:(APPEND|PREPEND|REPLACE)\s+)(.+)$/)) {
+		if(match[1] != null) {
+			what2do = match[1];
+			elementId = match[2];
+		}
+	}
+	
+	var answer = Template.renderTemplate(template, data, data2ajax);
+	switch(what2do) {
+		case "REPLACE":
+			document.getElementById(elementId).innerHTML = answer;
+		break;
+		case "APPEND":
+			document.getElementById(elementId).innerHTML += answer;
+		break;
+		case "PREPEND":
+			document.getElementById(elementId).innerHTML = answer + document.getElementById(elementId).innerHTML;
+		break;
+	}
 }
 Template.renderTemplate	=	function(templateName, data, data2ajax) {
 	return Template.loadTemplate(templateName).render(data, data2ajax);
