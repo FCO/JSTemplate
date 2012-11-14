@@ -43,19 +43,20 @@ Template.renderOn	=	function(template, data, elementId) {
 	var answer = Template.renderTemplate(template, data, data2ajax);
 	var container = document.createElement("div");
 	container.innerHTML = answer;
+	var elementObj = document.getElementById(elementId);
 	switch(what2do) {
 		case "REPLACE":
-			document.getElementById(elementId).innerHTML = container.innerHTML;
+			elementObj.innerHTML = container.innerHTML;
 		break;
 		case "APPEND":
 			var childs = container.childNodes;
 			for(var i = 0; i < childs.length; i++)
-				document.getElementById(elementId).appendChild(childs[i]);
+				elementObj.appendChild(childs[i]);
 		break;
 		case "PREPEND":
 			var childs = container.childNodes;
 			for(var i = childs.length - 1; i >= 0; i--)
-				document.getElementById(elementId).prependChild(childs[i]);
+				elementObj.prependChild(childs[i]);
 		break;
 	}
 }
