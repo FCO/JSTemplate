@@ -41,7 +41,7 @@ Template.renderOn	=	function(template, data, elementId) {
 	}
 	
 	var answer = Template.renderTemplate(template, data, data2ajax);
-	var container = document.createElement("div");
+	var container = document.createDocumentFragment();
 	container.innerHTML = answer;
 	var elementObj = document.getElementById(elementId);
 	switch(what2do) {
@@ -49,17 +49,11 @@ Template.renderOn	=	function(template, data, elementId) {
 			elementObj.innerHTML = container.innerHTML;
 		break;
 		case "APPEND":
-			var childs = container.childNodes;
-console.log(childs[0].toString());
-			//for(var i = 0; i < childs.length; i++)
-				//elementObj.appendChild(childs[i]);
-				elementObj.appendChild(container.removeChild(childs[0]));
+			elementObj.insertAfter(container);
 console.log("Passou");
 		break;
 		case "PREPEND":
-			var childs = container.childNodes;
-			for(var i = childs.length - 1; i >= 0; i--)
-				elementObj.prependChild(childs[i]);
+			elementObj.insertBefore(container);
 		break;
 	}
 }
