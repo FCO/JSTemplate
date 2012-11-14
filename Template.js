@@ -27,7 +27,7 @@ Template.extract_form	=	function(form) {
 
 Template.renderOn	=	function(template, data, elementId) {
 	var data2ajax;
-	if(data.constructor == Array) {
+	if(data != null && data.constructor == Array) {
 		data2ajax = data.pop();
 		data = data.pop();
 	}
