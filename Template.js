@@ -46,10 +46,10 @@ Template.renderOn	=	function(template, data, elementId) {
 			document.getElementById(elementId).innerHTML = answer;
 		break;
 		case "APPEND":
-			document.getElementById(elementId).innerHTML += answer;
+			document.getElementById(elementId).appendChild(answer);
 		break;
 		case "PREPEND":
-			document.getElementById(elementId).innerHTML = answer + document.getElementById(elementId).innerHTML;
+			document.getElementById(elementId).prependChild(answer);
 		break;
 	}
 }
