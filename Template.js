@@ -129,6 +129,10 @@ Template.prototype = {
 	},
 	render:			function(data, url_data) {
 		data = this.__translate_data__(data, url_data);
+		for(var key in this.stash) {
+			if(data[key] == null)
+				data[key] = this.stash[key];
+		}
 		var variables = "";
 		for(var key in data) {
 			variables += "var " + key + " = " + JSON.stringify(data[key]) + "\n";
