@@ -49,7 +49,7 @@ Template.renderOn	=	function(template, data, elementId) {
 			elementObj.innerHTML = container.innerHTML;
 		break;
 		case "APPEND":
-			container.removeChild(container);
+			elementObj.appendChild(container);
 		break;
 		case "PREPEND":
 			elementObj.prependChild(container);
