@@ -41,7 +41,7 @@ Template.renderOn	=	function(template, data, elementId) {
 	}
 	
 	var answer = Template.renderTemplate(template, data, data2ajax);
-	var container = document.createDocumentFragment();
+	var container = document.createElement("div");
 	container.innerHTML = answer;
 	var elementObj = document.getElementById(elementId);
 	switch(what2do) {
