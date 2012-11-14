@@ -50,7 +50,6 @@ Template.renderOn	=	function(template, data, elementId) {
 		break;
 		case "APPEND":
 			elementObj.appendChild(container);
-			elementObj.appendChild(document.createElement("br"));
 console.log("Passou");
 		break;
 		case "PREPEND":
