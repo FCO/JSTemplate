@@ -54,6 +54,7 @@ console.log(childs[0].toString());
 			//for(var i = 0; i < childs.length; i++)
 				//elementObj.appendChild(childs[i]);
 				elementObj.appendChild(childs[0]);
+console.log("Passou");
 		break;
 		case "PREPEND":
 			var childs = container.childNodes;
