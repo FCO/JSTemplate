@@ -41,15 +41,21 @@ Template.renderOn	=	function(template, data, elementId) {
 	}
 	
 	var answer = Template.renderTemplate(template, data, data2ajax);
+	var container = document.createElement("div");
+	container.innerHTML = answer;
 	switch(what2do) {
 		case "REPLACE":
-			document.getElementById(elementId).innerHTML = answer;
+			document.getElementById(elementId).innerHTML = container.innerHTML;
 		break;
 		case "APPEND":
-			document.getElementById(elementId).innerHTML += answer;
+			var childs = container.childNodes;
+			for(var i = 0; i < childs.length; i++)
+				document.getElementById(elementId).appendChild(childs[i]);
 		break;
 		case "PREPEND":
-			document.getElementById(elementId).innerHTML = answer + document.getElementById(elementId).innerHTML;
+			var childs = container.childNodes;
+			for(var i = childs.length - 1; i >= 0; i--)
+				document.getElementById(elementId).prependChild(childs[i]);
 		break;
 	}
 }
