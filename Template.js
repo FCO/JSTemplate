@@ -14,15 +14,15 @@ DataGetter.preconfigured = function(name, how2getData) {
 DataGetter.prototype = {
 	cache:		false,
 	extraData:	null,
-	defaults:	{},
-	sets:		{},
+	defaults:	null,
+	sets:		null,
 
 	setDefaults:	function(data) {
-		this.defaults = data;
+		this.defaults = BASIC(data);
 		return this;
 	},
 	set:		function(data) {
-		this.sets = data;
+		this.sets = BASIC(data);
 		return this;
 	},
 	setArguments:	function() {
@@ -54,24 +54,40 @@ DataGetter.prototype = {
 	},
 	get:		function() {
 		var ret = this.how2getData.apply(this, this.args);
-		for(var key in this.defaults) {
-			if(ret[key] == null)
-				ret[key] = this.defaults[key];
+		ret = this.recursiveGet(ret);
+		if(this.defaults != null) {
+			var defaults = this.defaults.get();
+			for(var key in defaults) {
+				if(ret[key] == null)
+					ret[key] = defaults[key];
+			}
 		}
-		for(var key in this.sets) {
-			ret[key] = this.sets[key];
+		if(this.sets != null) {
+			var sets = this.sets.get();
+			for(var key in sets) {
+				ret[key] = sets[key];
+			}
 		}
-		return this.recursiveGet(ret);
+		return ret;
 	},
 };
+
+DataGetter.preconfigured("BASIC", function(data){
+	return this.recursiveGet(data);
+});
+
+function BASIC(data) {
+	var obj = DataGetter.preconfigured("BASIC");
+	return obj.setArguments(data);
+}
 
 DataGetter.preconfigured("AJAX", function(method, url, data){
 	var content = null;
 	var AJAX = new XMLHttpRequest();
 	if (AJAX) {
-		AJAX.open(method, url, false);                             
+		AJAX.open(this.recursiveGet(method), this.recursiveGet(url), false);                             
 		AJAX.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-		AJAX.send(Template.transform2url(data));
+		AJAX.send(Template.transform2url(this.recursiveGet(data)));
 		content = AJAX.responseText;                                         
 	}
 	return JSON.parse(content);
@@ -88,6 +104,36 @@ function PUT(url, data) {
 }
 function DELETE(url, data) {
 	return DataGetter.preconfigured("AJAX").setArguments("DELETE", url, data);
+}
+
+DataGetter.preconfigured("FORM", function(form){
+	form = this.recursiveGet(form);
+	if(form.constructor != HTMLFormElement)
+		form = document.forms[form];
+	var elements = form.elements;
+	var ret = {};
+	for(var i = 0; i < elements.length; i++) {
+		var ele = elements[i];
+		if(!ele.name) break;
+		var do_break = false;
+		switch(ele.type) {
+			case 'radio':
+				if(!ele.checked) do_break = true;
+			break;
+			case 'checkbox':
+				if(ret[ele.name] == null) ret[ele.name] = [];
+				ret[ele.name].push(ele.value);
+				do_break = true;
+			break;
+		}
+		if(do_break) break;
+		ret[ele.name] = ele.value;
+	}
+	return ret;
+});
+
+function FORM(form) {
+	return DataGetter.preconfigured("FORM").setArguments(form);
 }
 
 function Template(code) {
@@ -146,7 +192,7 @@ Template.renderOn	=	function(template, data, elementId) {
 	}
 }
 Template.renderTemplate	=	function(templateName, data, data2ajax) {
-	return Template.loadTemplate(templateName).render(data, data2ajax);
+	return Template.loadTemplate(BASIC(templateName).get()).render(BASIC(data).get(), BASIC(data2ajax).get());
 };
 
 Template.loadTemplate	=	function(url) {
