@@ -1,3 +1,95 @@
+function DataGetter(how2getData) {
+	this.constructor = DataGetter;
+	this.how2getData = how2getData;
+}
+
+DataGetter.preconf = {};
+
+DataGetter.preconfigured = function(name, how2getData) {
+	if(DataGetter.preconf[name] == null)
+		DataGetter.preconf[name] = how2getData;
+	return new DataGetter(DataGetter.preconf[name])
+};
+
+DataGetter.prototype = {
+	cache:		false,
+	extraData:	null,
+	defaults:	{},
+	sets:		{},
+
+	setDefaults:	function(data) {
+		this.defaults = data;
+		return this;
+	},
+	set:		function(data) {
+		this.sets = data;
+		return this;
+	},
+	setArguments:	function() {
+		this.args = arguments;
+		return this;
+	},
+	recursiveGet:	function(data) {
+		var ret;
+		if(data == null) return;
+		switch(data.constructor) {
+			case DataGetter:
+				ret = data.get();
+			break;
+			case Array:
+				ret = [];
+				for(var i = 0; i < data.length; i++)
+					ret.push(this.recursiveGet(data[i]));
+			break;
+			case Object:
+				ret = {};
+				for(var key in data)
+					ret[key] = this.recursiveGet(data[key]);
+			break;
+			default:
+				ret = data;
+			break;
+		}
+		return ret;
+	},
+	get:		function() {
+		var ret = this.how2getData.apply(this, this.args);
+		for(var key in this.defaults) {
+			if(ret[key] == null)
+				ret[key] = this.defaults[key];
+		}
+		for(var key in this.sets) {
+			ret[key] = this.sets[key];
+		}
+		return this.recursiveGet(ret);
+	},
+};
+
+DataGetter.preconfigured("AJAX", function(method, url, data){
+	var content = null;
+	var AJAX = new XMLHttpRequest();
+	if (AJAX) {
+		AJAX.open(method, url, false);                             
+		AJAX.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		AJAX.send(Template.transform2url(data));
+		content = AJAX.responseText;                                         
+	}
+	return JSON.parse(content);
+});
+
+function GET(url, data) {
+	return DataGetter.preconfigured("AJAX").setArguments("GET", url, data);
+}
+function POST(url, data) {
+	return DataGetter.preconfigured("AJAX").setArguments("POST", url, data);
+}
+function PUT(url, data) {
+	return DataGetter.preconfigured("AJAX").setArguments("PUT", url, data);
+}
+function DELETE(url, data) {
+	return DataGetter.preconfigured("AJAX").setArguments("DELETE", url, data);
+}
+
 function Template(code) {
 	this._templates = {};
 	if(code != null){
@@ -27,7 +119,7 @@ Template.extract_form	=	function(form) {
 
 Template.renderOn	=	function(template, data, elementId) {
 	var data2ajax;
-	if(data.constructor == Array) {
+	if(data != null && data.constructor == Array) {
 		data2ajax = data.pop();
 		data = data.pop();
 	}
