@@ -8,15 +8,50 @@ DataGetter.preconf = {};
 DataGetter.preconfigured = function(name, how2getData) {
 	if(DataGetter.preconf[name] == null)
 		DataGetter.preconf[name] = how2getData;
-	return new DataGetter(DataGetter.preconf[name])
+	var ret = new DataGetter(DataGetter.preconf[name])
+	ret.type = name;
+	return ret;
+};
+
+DataGetter.uniqueId = function(data) {
+	var ret;
+	switch(data.constructor) {
+		case DataGetter:
+			ret = "DataGetter(" + data.type + " => " + data.uniqueId() + ")";
+		break;
+		case Array:
+			var tmp = [];
+			for(var i = 0; i < data.length; i++)
+				tmp.push(DataGetter.uniqueId(data[i]));
+			ret = "[" + tmp.join(", ") + "]"
+		break;
+		case Object:
+			var keys = [];
+			var tmp = [];
+			for(var key in data)
+				keys.push(key);
+			keys = keys.sort();
+			for(var i = 0; i < keys.length; i++)
+				tmp.push(keys[i] + ": " + DataGetter.uniqueId(data[key]));
+			ret = "{" + tmp.join(", ") + "}"
+		break;
+		default:
+			ret = '"' + data + '"';
+	}
+	return ret;
 };
 
 DataGetter.prototype = {
 	cache:		false,
-	extraData:	null,
 	defaults:	null,
 	sets:		null,
 
+	uniqueId:		function() {
+		var ret = [];
+		for(var i = 0; i < this.args.length; i++)
+			ret.push(DataGetter.uniqueId(this.args[i]));
+		return ret.join(", ");
+	},
 	setDefaults:	function(data) {
 		this.defaults = BASIC(data);
 		return this;
