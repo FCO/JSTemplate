@@ -5,7 +5,11 @@ function DataGetter(how2getData) {
 
 DataGetter.preconf = {};
 
+DataGetter.cache = {};
+
 DataGetter.preconfigured = function(name, how2getData) {
+	if(DataGetter.cache[name] == null)
+		DataGetter.cache[name] = {};
 	if(DataGetter.preconf[name] == null)
 		DataGetter.preconf[name] = how2getData;
 	var ret = new DataGetter(DataGetter.preconf[name])
@@ -15,6 +19,7 @@ DataGetter.preconfigured = function(name, how2getData) {
 
 DataGetter.uniqueId = function(data) {
 	var ret;
+	if(data == null) return "null";
 	switch(data.constructor) {
 		case DataGetter:
 			ret = "DataGetter(" + data.type + " => " + data.uniqueId() + ")";
@@ -42,11 +47,19 @@ DataGetter.uniqueId = function(data) {
 };
 
 DataGetter.prototype = {
-	cache:		false,
+	cache:		0,
 	defaults:	null,
 	sets:		null,
 
-	uniqueId:		function() {
+	cached:		function(time) {
+		this.cache = time != null ? time : -1;
+		return this;
+	},
+	notCached:	function() {
+		this.cache = 0;
+		return this;
+	},
+	uniqueId:	function() {
 		var ret = [];
 		for(var i = 0; i < this.args.length; i++)
 			ret.push(DataGetter.uniqueId(this.args[i]));
@@ -88,8 +101,24 @@ DataGetter.prototype = {
 		return ret;
 	},
 	get:		function() {
-		var ret = this.how2getData.apply(this, this.args);
-		ret = this.recursiveGet(ret);
+		var ret;
+		if(
+			this.cache == 0
+			|| DataGetter.cache[this.type][this.uniqueId()] == null
+			|| (
+				DataGetter.cache[this.type][this.uniqueId()]['expires'] != null
+				&& DataGetter.cache[this.type][this.uniqueId()]['expires'] <= (new Date()).getTime()
+			)
+		) {
+			ret = this.how2getData.apply(this, this.args);
+			ret = this.recursiveGet(ret);
+			DataGetter.cache[this.type][this.uniqueId()] = {
+				answer:		ret,
+				expires:	(this.cache > 0 ? (new Date()).getTime() + this.cache * 1000 : null)
+			};
+		} else {
+			ret = DataGetter.cache[this.type][this.uniqueId()]['answer'];
+		}
 		if(this.defaults != null) {
 			var defaults = this.defaults.get();
 			for(var key in defaults) {
@@ -106,6 +135,16 @@ DataGetter.prototype = {
 		return ret;
 	},
 };
+
+DataGetter.preconfigured("ALERT", function(data){
+	alert("getting");
+	return this.recursiveGet(data);
+});
+
+function ALERT(data) {
+	var obj = DataGetter.preconfigured("ALERT");
+	return obj.setArguments(data);
+}
 
 DataGetter.preconfigured("BASIC", function(data){
 	return this.recursiveGet(data);
