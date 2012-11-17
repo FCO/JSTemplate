@@ -1,3 +1,216 @@
+function DataGetter(how2getData) {
+	this.constructor = DataGetter;
+	this.how2getData = how2getData;
+	this.args = [];
+}
+
+DataGetter.preconf = {};
+
+DataGetter.cache = {};
+
+DataGetter.preconfigured = function(name, how2getData) {
+	if(DataGetter.cache[name] == null)
+		DataGetter.cache[name] = {};
+	if(DataGetter.preconf[name] == null)
+		DataGetter.preconf[name] = how2getData;
+	var ret = new DataGetter(DataGetter.preconf[name])
+	ret.type = name;
+	return ret;
+};
+
+DataGetter.uniqueId = function(data) {
+	var ret;
+	if(data == null) return "null";
+	switch(data.constructor) {
+		case DataGetter:
+			ret = "DataGetter(" + data.type + " => " + data.uniqueId() + ")";
+		break;
+		case Array:
+			var tmp = [];
+			for(var i = 0; i < data.length; i++)
+				tmp.push(DataGetter.uniqueId(data[i]));
+			ret = "[" + tmp.join(", ") + "]"
+		break;
+		case Object:
+			var keys = [];
+			var tmp = [];
+			for(var key in data)
+				keys.push(key);
+			keys = keys.sort();
+			for(var i = 0; i < keys.length; i++)
+				tmp.push(keys[i] + ": " + DataGetter.uniqueId(data[key]));
+			ret = "{" + tmp.join(", ") + "}"
+		break;
+		default:
+			ret = '"' + data + '"';
+	}
+	return ret;
+};
+
+DataGetter.prototype = {
+	cache:		0,
+	defaults:	null,
+	sets:		null,
+
+	cached:		function(time) {
+		this.cache = time != null ? time : -1;
+		return this;
+	},
+	notCached:	function() {
+		this.cache = 0;
+		return this;
+	},
+	uniqueId:	function() {
+		var ret = [];
+		for(var i = 0; i < this.args.length; i++)
+			ret.push(DataGetter.uniqueId(this.args[i]));
+		return ret.join(", ");
+	},
+	setDefaults:	function(data) {
+		this.defaults = BASIC(data);
+		return this;
+	},
+	set:		function(data) {
+		this.sets = BASIC(data);
+		return this;
+	},
+	setArguments:	function() {
+		this.args = arguments;
+		return this;
+	},
+	recursiveGet:	function(data) {
+		var ret;
+		if(data == null) return;
+		switch(data.constructor) {
+			case DataGetter:
+				ret = data.get();
+			break;
+			case Array:
+				ret = [];
+				for(var i = 0; i < data.length; i++)
+					ret.push(this.recursiveGet(data[i]));
+			break;
+			case Object:
+				ret = {};
+				for(var key in data)
+					ret[key] = this.recursiveGet(data[key]);
+			break;
+			default:
+				ret = data;
+			break;
+		}
+		return ret;
+	},
+	get:		function() {
+		var ret;
+		if(
+			this.cache == 0
+			|| DataGetter.cache[this.type][this.uniqueId()] == null
+			|| (
+				DataGetter.cache[this.type][this.uniqueId()]['expires'] != null
+				&& DataGetter.cache[this.type][this.uniqueId()]['expires'] <= (new Date()).getTime()
+			)
+		) {
+			ret = this.how2getData.apply(this, this.args);
+			ret = this.recursiveGet(ret);
+			DataGetter.cache[this.type][this.uniqueId()] = {
+				answer:		ret,
+				expires:	(this.cache > 0 ? (new Date()).getTime() + this.cache * 1000 : null)
+			};
+		} else {
+			ret = DataGetter.cache[this.type][this.uniqueId()]['answer'];
+		}
+		if(this.defaults != null) {
+			var defaults = this.defaults.get();
+			for(var key in defaults) {
+				if(ret[key] == null)
+					ret[key] = defaults[key];
+			}
+		}
+		if(this.sets != null) {
+			var sets = this.sets.get();
+			for(var key in sets) {
+				ret[key] = sets[key];
+			}
+		}
+		return ret;
+	},
+};
+
+DataGetter.preconfigured("ALERT", function(data){
+	alert("getting");
+	return this.recursiveGet(data);
+});
+
+function ALERT(data) {
+	var obj = DataGetter.preconfigured("ALERT");
+	return obj.setArguments(data);
+}
+
+DataGetter.preconfigured("BASIC", function(data){
+	return this.recursiveGet(data);
+});
+
+function BASIC(data) {
+	var obj = DataGetter.preconfigured("BASIC");
+	return obj.setArguments(data);
+}
+
+DataGetter.preconfigured("AJAX", function(method, url, data){
+	var content = null;
+	var AJAX = new XMLHttpRequest();
+	if (AJAX) {
+		AJAX.open(this.recursiveGet(method), this.recursiveGet(url), false);                             
+		AJAX.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		AJAX.send(Template.transform2url(this.recursiveGet(data)));
+		content = AJAX.responseText;                                         
+	}
+	return JSON.parse(content);
+});
+
+function GET(url, data) {
+	return DataGetter.preconfigured("AJAX").setArguments("GET", url, data);
+}
+function POST(url, data) {
+	return DataGetter.preconfigured("AJAX").setArguments("POST", url, data);
+}
+function PUT(url, data) {
+	return DataGetter.preconfigured("AJAX").setArguments("PUT", url, data);
+}
+function DELETE(url, data) {
+	return DataGetter.preconfigured("AJAX").setArguments("DELETE", url, data);
+}
+
+DataGetter.preconfigured("FORM", function(form){
+	form = this.recursiveGet(form);
+	if(form.constructor != HTMLFormElement)
+		form = document.forms[form];
+	var elements = form.elements;
+	var ret = {};
+	for(var i = 0; i < elements.length; i++) {
+		var ele = elements[i];
+		if(!ele.name) break;
+		var do_break = false;
+		switch(ele.type) {
+			case 'radio':
+				if(!ele.checked) do_break = true;
+			break;
+			case 'checkbox':
+				if(ret[ele.name] == null) ret[ele.name] = [];
+				ret[ele.name].push(ele.value);
+				do_break = true;
+			break;
+		}
+		if(do_break) break;
+		ret[ele.name] = ele.value;
+	}
+	return ret;
+});
+
+function FORM(form) {
+	return DataGetter.preconfigured("FORM").setArguments(form);
+}
+
 function Template(code) {
 	this._templates = {};
 	if(code != null){
@@ -54,7 +267,7 @@ Template.renderOn	=	function(template, data, elementId) {
 	}
 }
 Template.renderTemplate	=	function(templateName, data, data2ajax) {
-	return Template.loadTemplate(templateName).render(data, data2ajax);
+	return Template.loadTemplate(BASIC(templateName).get()).render(BASIC(data).get(), BASIC(data2ajax).get());
 };
 
 Template.loadTemplate	=	function(url) {

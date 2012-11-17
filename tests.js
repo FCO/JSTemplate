@@ -67,3 +67,21 @@ asyncTest( "browser() Helper - asyncTest", function() {
 	};
 	document.body.appendChild(script);
 });
+test( "dataGetter Class", function() {
+	var dg1 = DataGetter.preconfigured("TEST01", function(){return "lalala"});
+	equal(dg1.constructor, DataGetter, "preconfigured returns a DataGetter object.")
+	var dg2 = DataGetter.preconfigured("TEST01");
+	deepEqual(dg1, dg2, "Objs are equivalents");
+});
+test( "dataGetter Cache", function() {
+	var counter = 0;
+	var dg1 = DataGetter.preconfigured("TEST02", function(){counter++; return {stat: "ok"}});
+	deepEqual(dg1.get(), {stat: "ok"});
+	equal(counter, 1, "Objs are equivalents");
+	dg1.cached().get();
+	equal(counter, 1, "Objs are equivalents");
+	dg1.notCached().get();
+	equal(counter, 2, "Objs are equivalents");
+	dg1.cached().get();
+	equal(counter, 2, "Objs are equivalents");
+});
