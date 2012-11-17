@@ -1,6 +1,7 @@
 function DataGetter(how2getData) {
 	this.constructor = DataGetter;
 	this.how2getData = how2getData;
+	this.args = [];
 }
 
 DataGetter.preconf = {};
