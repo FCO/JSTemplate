@@ -400,7 +400,7 @@ Template.prototype = {
 			ret = "ret += " + this.__compile_code__(new_code) + ";\n";
 		} else if(/\s*=\s*$/.test(code)) {
 			var new_code = code.replace(/\s*=\s*$/, "");
-			ret = "( " + this.__compile_code__(new_code) + " ).replace(/^\\s+|\\s+$/g, '')";
+			ret = "( " + this.__compile_code__(new_code) + " ).toString().replace(/^\\s+|\\s+$/g, '')";
 		}
 		return ret;
 	},
