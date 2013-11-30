@@ -257,6 +257,7 @@ Template.renderOn	=	function(template, data, elementId) {
 	var container = document.createElement("div");
 	container.innerHTML = answer;
 	var elementObj = document.getElementById(elementId);
+	if(elementObj == null) elementObj = document.querySelector(elementId);
 	switch(what2do) {
 		case "REPLACE":
 			elementObj.innerHTML = container.innerHTML;
@@ -270,13 +271,21 @@ Template.renderOn	=	function(template, data, elementId) {
 	}
 }
 Template.renderTemplate	=	function(templateName, data, data2ajax) {
-	return Template.loadTemplate(BASIC(templateName).get()).render(BASIC(data).get(), BASIC(data2ajax).get());
+	var ret;
+	if(templateName.constructor == Template) {
+		ret = templateName.render(data, data2ajax);
+	} else {
+		ret = Template.loadTemplate(BASIC(templateName).get()).render(BASIC(data).get(), BASIC(data2ajax).get());
+	}
+	return ret;
 };
 
 Template.loadTemplate	=	function(url) {
 	if(Template.__loaded__[url] == null) {
 		var data;
 		if(element = document.getElementById(url)) {
+			data = element.innerHTML;
+		} else if(element = document.querySelector(url)) {
 			data = element.innerHTML;
 		} else if(/^((GET|POST|PUT|DELETE)\s+)?[\w+_.-]+$/.test(url)) {
 			data = Template.__download__(url);
@@ -354,6 +363,9 @@ Template.prototype = {
 			variables += "var " + key + " = " + JSON.stringify(data[key]) + "\n";
 		}
 		return this.__function__.call(this, variables);
+	},
+	renderOn:		function(object, data, url_data) {
+		return this.renderOn(data, url_data, object);
 	},
 	setTemplate:		function(template) {
 		this.code = template;
