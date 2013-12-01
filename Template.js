@@ -360,9 +360,9 @@ Template.prototype = {
 		}
 		var variables = "";
 		for(var key in data) {
-			variables += "var " + key + " = " + JSON.stringify(data[key]) + "\n";
+			variables += "var " + key + " = renderData['" + key + "'];\n";
 		}
-		return this.__function__.call(this, variables);
+		return this.__function__.call(this, variables, data);
 	},
 	renderOn:		function(object, data, url_data) {
 		return this.renderOn(data, url_data, object);
@@ -389,7 +389,7 @@ Template.prototype = {
 			compiled_template += this.__compile_code__(template_hashes[i].code);
 		}
 		compiled_template += "return ret;\n";
-		this.__function__ =  new Function("variables", compiled_template);
+		this.__function__ =  new Function("variables", "renderData", compiled_template);
 	},
 	__compile_code__:	function(code) {
 		var ret = code;
