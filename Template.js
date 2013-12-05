@@ -246,7 +246,7 @@ Template.renderOn	=	function(template, data, elementId) {
 	}
 	var what2do = "REPLACE";
 	var match;
-	if(match = elementId.match(/^(?:(APPEND|PREPEND|REPLACE)\s+)(.+)$/)) {
+	if(!(elementId instanceof Object) && (match = elementId.match(/^(?:(APPEND|PREPEND|REPLACE)\s+)(.+)$/))) {
 		if(match[1] != null) {
 			what2do = match[1];
 			elementId = match[2];
@@ -256,8 +256,16 @@ Template.renderOn	=	function(template, data, elementId) {
 	var answer = Template.renderTemplate(template, data, data2ajax);
 	var container = document.createElement("div");
 	container.innerHTML = answer;
-	var elementObj = document.getElementById(elementId);
-	if(elementObj == null) elementObj = document.querySelector(elementId);
+	
+	var elementObj;
+	if(elementId instanceof Object) {
+		elementObj = elementId;
+	} else {
+		elementObj = document.getElementById(elementId);
+		if(elementObj == null) {
+			elementObj = document.querySelector(elementId);
+		}
+	}
 	switch(what2do) {
 		case "REPLACE":
 			elementObj.innerHTML = container.innerHTML;
@@ -281,16 +289,17 @@ Template.renderTemplate	=	function(templateName, data, data2ajax) {
 };
 
 Template.loadTemplate	=	function(url) {
+	if(url instanceof Template) return url;
 	if(Template.__loaded__[url] == null) {
-		var data;
-		if(element = document.getElementById(url)) {
-			data = element.innerHTML;
-		} else if(element = document.querySelector(url)) {
-			data = element.innerHTML;
-		} else if(/^((GET|POST|PUT|DELETE)\s+)?[\w+_.-]+$/.test(url)) {
-			data = Template.__download__(url);
-		} else {
-			data = url;
+		var data = url;
+		if(typeof(url) == "string") {
+			if(element = document.getElementById(url)) {
+				data = element.innerHTML;
+			} else if(element = document.querySelector(url)) {
+				data = element.innerHTML;
+			} else if(/^((GET|POST|PUT|DELETE)\s+)?[\w+_.-]+$/.test(url)) {
+				data = Template.__download__(url);
+			}
 		}
 		Template.__loaded__[url] = new Template(data);
 	}
@@ -365,7 +374,7 @@ Template.prototype = {
 		return this.__function__.call(this, variables, data);
 	},
 	renderOn:		function(object, data, url_data) {
-		return this.renderOn(data, url_data, object);
+		return Template.renderOn(this, data, object);
 	},
 	setTemplate:		function(template) {
 		this.code = template;
@@ -409,7 +418,7 @@ Template.prototype = {
 	},
 	is_browser_detect_load: false,
 	browser:	{
-		get msie(){		console.log("bowser lib not loaded."); return false;},
+		get msie(){	console.log("bowser lib not loaded."); return false;},
 		get safari(){	console.log("bowser lib not loaded."); return false;},
 		get chrome(){	console.log("bowser lib not loaded."); return false;},
 		get webkit(){	console.log("bowser lib not loaded."); return false;},
