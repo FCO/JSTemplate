@@ -1,0 +1,19 @@
+{
+  "name": "JSTemplate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Template.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FCO/JSTemplate.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FCO/JSTemplate/issues"
+  },
+  "homepage": "https://github.com/FCO/JSTemplate"
+}

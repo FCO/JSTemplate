@@ -218,10 +218,12 @@ function Template(code) {
 		this.compileTemplate();
 	}
 	this.helpers = {};
-	if(window.bowser != null) {
-		this.browser = bowser;
-		this.is_browser_detect_load = true;
-	}
+	try {
+		if(!process && window.bowser != null) {
+			this.browser = bowser;
+			this.is_browser_detect_load = true;
+		}
+	}catch(err){}
 }
 
 Template.__loaded__ = {};
@@ -428,3 +430,4 @@ Template.prototype = {
 	},
 };
 
+module.exports = Template;
